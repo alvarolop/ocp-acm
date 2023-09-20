@@ -61,7 +61,7 @@ auto-install.sh
 
 The process of installing is not that complex, but it can be divided in two steps. First, creating the namespace for ACM and installing the operator. Second, create the `MultiClusterHub` to actually install ACM components.
 
-== Step 1: The ACM operator
+=== Step 1: The ACM operator
 
 [source, bash]
 ----
@@ -69,7 +69,7 @@ oc process -f openshift/00-operator.yaml | oc apply -f -
 ----
 
 
-== Step 2: The ACM cluster
+=== Step 2: The ACM cluster
 
 [source, bash]
 ----
