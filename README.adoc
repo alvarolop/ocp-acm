@@ -38,4 +38,42 @@ toc::[]
 
 == Introduction
 
+Red Hat Advanced Cluster Management (ACM) allows organizations to rapidly deploy OpenShift to Cloud and On-Premise locations as well as manage the Kubernetes fleet of clusters.
+
+
+.Advanced Cluster Management Architecture
+image::acm-architecture.png[ACM architecture, link=https://raw.githubusercontent.com/redhataccess/documentation-svg-assets/master/for-web/RHACM/186_RHACM/186_RHACM_misc._1221_multicluster-arc.png]
+
+NOTE: https://github.com/redhataccess/documentation-svg-assets/blob/master/for-web/RHACM/186_RHACM/186_RHACM_misc._1221_multicluster-arc.png[Source] of the diagram
+
+
+== Installing: Automated
+
+Are you in a hurry? Do you need a one-click script? Okay, I understand! Execute the following command:
+
+[source, bash]
+----
+auto-install.sh
+----
+
+
+== Installing: Manual
+
+The process of installing is not that complex, but it can be divided in two steps. First, creating the namespace for ACM and installing the operator. Second, create the `MultiClusterHub` to actually install ACM components.
+
+== Step 1: The ACM operator
+
+[source, bash]
+----
+oc process -f openshift/00-operator.yaml | oc apply -f -
+----
+
+
+== Step 2: The ACM cluster
+
+[source, bash]
+----
+oc process -f openshift/10-multi-cluster-hub.yaml | oc apply -f -
+----
+
 
