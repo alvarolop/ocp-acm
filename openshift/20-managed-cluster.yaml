@@ -1,0 +1,61 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: acm-operator
+  annotations:
+    description: Template to deploy the ACM operator on OCP.
+    tags: acm,management,operator
+    iconClass: icon-openshift
+    openshift.io/provider-display-name: Red Hat, Inc.
+    openshift.io/support-url: https://access.redhat.com
+objects:
+
+- apiVersion: project.openshift.io/v1
+  kind: Project
+  metadata:
+    name: ${MANAGED_CLUSTER_NAMESPACE}
+    annotations:
+      openshift.io/description: "This project contains all the resources related to the operator of Red Hat Data Grid 8"
+      openshift.io/display-name: "vSphere"
+
+- apiVersion: v1
+  kind: Secret
+  type: Opaque
+  metadata:
+    name: ${MANAGED_CLUSTER_NAMESPACE}-01
+    namespace: ${MANAGED_CLUSTER_NAMESPACE}
+    labels:
+      cluster.open-cluster-management.io/credentials: ""
+      cluster.open-cluster-management.io/type: vmw
+    annotations:
+      credential-hash: 
+  stringData:
+    vCenter: ""
+    username: ""
+    password: ""
+    cacertificate: |-
+      -----BEGIN CERTIFICATE-----
+      ****
+      -----END CERTIFICATE-----
+    cluster: Cluster-1
+    datacenter: 
+    defaultDatastore: ""
+    vsphereFolder: ""
+    vsphereResourcePool: ""
+    vsphereDiskType: ""
+    baseDomain: ""
+    pullSecret: ""
+    ssh-privatekey: ""
+    ssh-publickey: ""
+    imageContentSources: ""
+    disconnectedAdditionalTrustBundle: ""
+    httpProxy: ""
+    httpsProxy: ""
+    noProxy: ""
+    additionalTrustBundle: ""
+    
+parameters:
+- name: MANAGED_CLUSTER_NAMESPACE
+  description: "The project where all the secrets related to the managed cluster are stored."
+  required: false
+  value: "vsphere"
