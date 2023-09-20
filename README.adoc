@@ -44,7 +44,8 @@ Red Hat Advanced Cluster Management (ACM) allows organizations to rapidly deploy
 .Advanced Cluster Management Architecture
 image::acm-architecture.png[ACM architecture, link=https://raw.githubusercontent.com/redhataccess/documentation-svg-assets/master/for-web/RHACM/186_RHACM/186_RHACM_misc._1221_multicluster-arc.png]
 
-NOTE: https://github.com/redhataccess/documentation-svg-assets/blob/master/for-web/RHACM/186_RHACM/186_RHACM_misc._1221_multicluster-arc.png[Source] of the diagram
+
+This is the https://github.com/redhataccess/documentation-svg-assets/blob/master/for-web/RHACM/186_RHACM/186_RHACM_misc._1221_multicluster-arc.png[source] of the diagram.
 
 
 == Installing: Automated
@@ -69,7 +70,7 @@ oc process -f openshift/00-operator.yaml | oc apply -f -
 ----
 
 
-=== Step 2: The ACM cluster
+=== Step 2: The ACM Hub cluster
 
 [source, bash]
 ----
@@ -77,3 +78,20 @@ oc process -f openshift/10-multi-cluster-hub.yaml | oc apply -f -
 ----
 
 
+
+== Cluster lifecycle with multicluster engine operator
+
+
+The multicluster engine for Kubernetes operator is the cluster lifecycle operator that provides cluster management capabilities for Red Hat OpenShift Container Platform and Red Hat Advanced Cluster Management hub clusters.
+
+
+=== Create a new managed cluster
+
+Please, review the content of the `openshift/20-managed-cluster.yaml` and add in the template all the values for your cluster. Then, apply the secret as in the following example:
+
+NOTE: Before trying to update all the values, I recommend you to check the official documentation, which will save you time: https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.8/html-single/clusters/index#vsphere_cred
+
+[source, bash]
+----
+oc process -f openshift/20-managed-cluster.yaml | oc apply -f -
+----
