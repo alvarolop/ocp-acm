@@ -1,0 +1,43 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: acm-operator
+  annotations:
+    description: Template to deploy the ACM operator on OCP.
+    tags: acm,management,operator
+    iconClass: icon-openshift
+    openshift.io/provider-display-name: Red Hat, Inc.
+    openshift.io/support-url: https://access.redhat.com
+objects:
+
+- apiVersion: operator.open-cluster-management.io/v1
+  kind: MultiClusterHub
+  metadata:
+    name: multiclusterhub
+    namespace: ${ACM_NAMESPACE}
+  spec:
+    availabilityConfig: "Basic" # By default, "High".
+    # disableHubSelfManagement: false
+    # disableUpdateClusterImageSets: false
+    # imagePullSecret: "" # Only to use with k8s vanilla
+    # overrides:
+    #   components:
+    #   - name: console
+    #     enabled: true
+    #   - name: cluster-backup
+    #     enabled: true
+    #   - name: managedserviceaccount-preview
+    #     enabled: true
+    #   imagePullPolicy: Always
+    # nodeSelector:
+    #   node-role.kubernetes.io/infra: ""
+    # tolerations:
+    #   - key: node-role.kubernetes.io/infra
+    #     effect: NoSchedule
+    #     operator: Exists
+    
+parameters:
+- name: ACM_NAMESPACE
+  description: "The project where ACM and its operator will be installed."
+  required: false
+  value: "open-cluster-management"

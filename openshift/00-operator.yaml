@@ -1,0 +1,54 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: acm-operator
+  annotations:
+    description: Template to deploy the ACM operator on OCP.
+    tags: acm,management,operator
+    iconClass: icon-openshift
+    openshift.io/provider-display-name: Red Hat, Inc.
+    openshift.io/support-url: https://access.redhat.com
+objects:
+
+- apiVersion: project.openshift.io/v1
+  kind: Project
+  metadata:
+    name: ${ACM_NAMESPACE}
+    annotations:
+      openshift.io/description: "This project contains all the resources related to the operator of Red Hat Data Grid 8"
+      openshift.io/display-name: "Advanced Cluster Management"
+
+- apiVersion: operators.coreos.com/v1
+  kind: OperatorGroup
+  metadata:
+    name: open-cluster-management
+    namespace: ${ACM_NAMESPACE}
+  spec:
+    targetNamespaces:
+      - ${ACM_NAMESPACE}
+
+- apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    name: acm-operator-subscription
+    namespace: ${ACM_NAMESPACE}
+  spec:
+    channel: release-2.8
+    installPlanApproval: Automatic 
+    name: advanced-cluster-management
+    source: redhat-operators
+    sourceNamespace: openshift-marketplace
+    # Configuration to deploy on Infra nodes
+    # config:
+    #   nodeSelector:
+    #     node-role.kubernetes.io/infra: ""
+    #   tolerations:
+    #   - key: node-role.kubernetes.io/infra
+    #     effect: NoSchedule
+    #     operator: Exists
+
+parameters:
+- name: ACM_NAMESPACE
+  description: "The project where ACM and its operator will be installed."
+  required: false
+  value: "open-cluster-management"
