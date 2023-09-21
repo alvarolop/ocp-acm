@@ -1,0 +1,82 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: acm-operator
+  annotations:
+    description: Template to deploy the ACM operator on OCP.
+    tags: acm,management,operator
+    iconClass: icon-openshift
+    openshift.io/provider-display-name: Red Hat, Inc.
+    openshift.io/support-url: https://access.redhat.com
+objects:
+
+- apiVersion: project.openshift.io/v1
+  kind: Project
+  metadata:
+    name: ${ACMO_NAMESPACE}
+    annotations:
+      openshift.io/description: "This project contains all the resources related Observability in ACM"
+      openshift.io/display-name: "ACM Observability"
+
+
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: multiclusterhub-operator-pull-secret
+    namespace: ${ACMO_NAMESPACE}
+  type: kubernetes.io/dockerconfigjson
+  stringData:
+    .dockerconfigjson: '${DOCKER_CONFIG_JSON}'
+
+
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: thanos-object-storage
+    namespace: ${ACMO_NAMESPACE}
+  type: Opaque
+  stringData:
+    thanos.yaml: |
+      type: s3
+      config:
+        bucket: ${AWS_S3_BUCKET}
+        endpoint: s3.${AWS_DEFAULT_REGION}.amazonaws.com:443
+        insecure: true
+        access_key: ${AWS_ACCESS_KEY_ID}
+        secret_key: ${AWS_SECRET_ACCESS_KEY}
+
+
+- apiVersion: observability.open-cluster-management.io/v1beta2
+  kind: MultiClusterObservability
+  metadata:
+    name: observability
+    namespace: ${ACMO_NAMESPACE}
+  spec:
+    observabilityAddonSpec: {}
+    storageConfig:
+      metricObjectStorage:
+        name: thanos-object-storage
+        key: thanos.yaml
+
+    
+parameters:
+- name: ACMO_NAMESPACE
+  description: "The project where ACM and its operator will be installed."
+  required: false
+  value: "open-cluster-management-observability"
+- name: AWS_ACCESS_KEY_ID
+  description: "AWS access_key_id."
+  required: true
+- name: AWS_SECRET_ACCESS_KEY
+  description: "AWS access_key_secret."
+  required: true
+- name: AWS_DEFAULT_REGION
+  description: "AWS region."
+  required: true
+- name: AWS_S3_BUCKET
+  description: "S3 Bucket name (You can modify it in the script)."
+  required: false
+  value: logging-loki-s3-bucket
+- name: DOCKER_CONFIG_JSON
+  description: "dockerconfigjson from the cluster configuration."
+  required: true
