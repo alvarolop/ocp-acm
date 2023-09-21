@@ -95,3 +95,24 @@ NOTE: Before trying to update all the values, I recommend you to check the offic
 ----
 oc process -f openshift/20-managed-cluster.yaml | oc apply -f -
 ----
+
+
+
+== Observability
+
+
+You can use Red Hat Advanced Cluster Management for Kubernetes to gain insight and optimize your managed clusters.
+
+NOTE: Due to the requirement for persistent storage, the observability service is not enabled by default. You must configure an object store to create a storage solution. 
+
+
+[source, bash]
+----
+oc process -f openshift/11-multi-cluster-observability.yaml \
+    --param-file ./aws-env-vars --ignore-unknown-parameters=true \
+    -p DOCKER_CONFIG_JSON="$(oc extract secret/pull-secret -n openshift-config --to=-)" | oc apply -f -
+----
+
+
+.ACM Observability Grafana
+image::acm-observability-grafana.png[ACM Observability Grafana]
