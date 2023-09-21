@@ -15,7 +15,7 @@ objects:
   metadata:
     name: ${ACM_NAMESPACE}
     annotations:
-      openshift.io/description: "This project contains all the resources related to the operator of Red Hat Data Grid 8"
+      openshift.io/description: "This project contains all the resources related to the operator and the cluster of ACM"
       openshift.io/display-name: "Advanced Cluster Management"
 
 - apiVersion: operators.coreos.com/v1
