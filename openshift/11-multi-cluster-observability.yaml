@@ -76,7 +76,7 @@ parameters:
 - name: AWS_S3_BUCKET
   description: "S3 Bucket name (You can modify it in the script)."
   required: false
-  value: logging-loki-s3-bucket
+  value: acm-thanos-s3-bucket
 - name: DOCKER_CONFIG_JSON
   description: "dockerconfigjson from the cluster configuration."
   required: true
