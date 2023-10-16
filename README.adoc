@@ -41,11 +41,30 @@ toc::[]
 Red Hat Advanced Cluster Management (ACM) allows organizations to rapidly deploy OpenShift to Cloud and On-Premise locations as well as manage the Kubernetes fleet of clusters.
 
 
+The following diagram provides a high-level overview of a RHACM deployment:
+
+
 .Advanced Cluster Management Architecture
 image::acm-architecture.png[ACM architecture, link=https://raw.githubusercontent.com/redhataccess/documentation-svg-assets/master/for-web/RHACM/186_RHACM/186_RHACM_misc._1221_multicluster-arc.png]
 
 
 This is the https://github.com/redhataccess/documentation-svg-assets/blob/master/for-web/RHACM/186_RHACM/186_RHACM_misc._1221_multicluster-arc.png[source] of the diagram.
+
+
+
+When you install RHACM, the operator creates the following namespaces in the *hub cluster*:
+
+* `open-cluster-management`: the deployments for the main features of RHACM.
+* `open-cluster-management-hub`: the deployments that receive data from the managed clusters.
+* `open-cluster-management-observability``: the RHACM observability engine (Disabled by default).
+
+When you install RHACM, the operator creates the following namespaces in the *managed clusters*:
+
+* `open-cluster-management-agent``: the deployments for the `klusterlet` agent.
+* `open-cluster-management-agent-addon``: the application's deployments, search engine, and policies engines.
+* `open-cluster-management-agent-addon-observability``: the observability engine's deployments.
+
+
 
 
 == Installing: Automated
@@ -54,13 +73,13 @@ Are you in a hurry? Do you need a one-click script? Okay, I understand! Execute 
 
 [source, bash]
 ----
-auto-install.sh
+./auto-install.sh
 ----
 
 
 == Installing: Manual
 
-The process of installing is not that complex, but it can be divided in two steps. First, creating the namespace for ACM and installing the operator. Second, create the `MultiClusterHub` to actually install ACM components.
+The process of installation is not that complex, but it can be divided into two steps. First, create the namespace for ACM and install the operator. Second, create the `MultiClusterHub` to actually install ACM components.
 
 === Step 1: The ACM operator
 
@@ -79,22 +98,54 @@ oc process -f openshift/10-multi-cluster-hub.yaml | oc apply -f -
 
 
 
+
+
+
+
+
+
+
 == Cluster lifecycle with multicluster engine operator
 
 
 The multicluster engine for Kubernetes operator is the cluster lifecycle operator that provides cluster management capabilities for Red Hat OpenShift Container Platform and Red Hat Advanced Cluster Management hub clusters.
 
+You can import new clusters from the web console or by using the command line. 
 
-=== Create a new managed cluster
+
+=== Importing Clusters: Web Console
+
+
+
+
+
+
+=== Importing Clusters: CLI
+
+
+
 
 Please, review the content of the `openshift/20-managed-cluster.yaml` and add in the template all the values for your cluster. Then, apply the secret as in the following example:
 
-NOTE: Before trying to update all the values, I recommend you to check the official documentation, which will save you time: https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.8/html-single/clusters/index#vsphere_cred
+NOTE: Before trying to update all the values, I recommend you to check the official documentation, which will save you some time: https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.8/html-single/clusters/index#vsphere_cred
 
 [source, bash]
 ----
 oc process -f openshift/20-managed-cluster.yaml | oc apply -f -
 ----
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
