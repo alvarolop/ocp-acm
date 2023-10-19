@@ -100,55 +100,6 @@ oc process -f openshift/10-multi-cluster-hub.yaml | oc apply -f -
 
 
 
-
-
-
-
-
-== Cluster lifecycle with multicluster engine operator
-
-
-The multicluster engine for Kubernetes operator is the cluster lifecycle operator that provides cluster management capabilities for Red Hat OpenShift Container Platform and Red Hat Advanced Cluster Management hub clusters.
-
-You can import new clusters from the web console or by using the command line. 
-
-
-=== Importing Clusters: Web Console
-
-
-
-
-
-
-=== Importing Clusters: CLI
-
-
-
-
-Please, review the content of the `openshift/20-managed-cluster.yaml` and add in the template all the values for your cluster. Then, apply the secret as in the following example:
-
-NOTE: Before trying to update all the values, I recommend you to check the official documentation, which will save you some time: https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.8/html-single/clusters/index#vsphere_cred
-
-[source, bash]
-----
-oc process -f openshift/20-managed-cluster.yaml | oc apply -f -
-----
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 == Observability
 
 
@@ -167,3 +118,61 @@ oc process -f openshift/11-multi-cluster-observability.yaml \
 
 .ACM Observability Grafana
 image::acm-observability-grafana.png[ACM Observability Grafana]
+
+
+
+
+
+
+
+
+
+== Cluster lifecycle with multicluster engine operator
+
+
+The multicluster engine for Kubernetes operator is the cluster lifecycle operator that provides cluster management capabilities for Red Hat OpenShift Container Platform and Red Hat Advanced Cluster Management hub clusters.
+
+You can import new clusters from the web console or by using the command line. 
+
+
+=== Importing Clusters: Web Console
+
+
+// TO DO
+
+
+
+=== Importing Clusters: CLI
+
+After you install multicluster engine for Kubernetes operator, you are ready to import a cluster and manage it. The following template defines all the objects that you need to create to import your existing cluster.
+
+
+NOTE: Before trying to update all the values, I recommend you to check the official documentation, which will save you some time: https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.8/html-single/clusters/index#importing-managed-cluster-cli
+
+[source, bash]
+----
+oc process -f openshift/20-managed-cluster.yaml \
+    -p MANAGED_TOKEN="" \
+    -p MANAGED_API="" | oc apply -f -
+----
+
+Example values are:
+
+* Token: `sha256~Ds0o74XOm54aIMdVaceIHj-afmwiofam`.
+* API URL: `https://api.cluster-XXXX.XXXX.XXXX.XXXX.com:6443`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
