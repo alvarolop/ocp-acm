@@ -50,7 +50,7 @@ The following diagram provides a high-level overview of a RHACM deployment:
 image::acm-architecture.png[ACM architecture, link=https://raw.githubusercontent.com/redhataccess/documentation-svg-assets/master/for-web/RHACM/186_RHACM/186_RHACM_misc._1221_multicluster-arc.png]
 
 
-This is the https://github.com/redhataccess/documentation-svg-assets/blob/master/for-web/RHACM/186_RHACM/186_RHACM_misc._1221_multicluster-arc.png[source] of the diagram.
+// This is the https://github.com/redhataccess/documentation-svg-assets/blob/master/for-web/RHACM/186_RHACM/186_RHACM_misc._1221_multicluster-arc.png[source] of the diagram.
 
 
 
@@ -172,6 +172,8 @@ Example values are:
 
 
 
+
+
 == ArgoCD ApplicationSets with ACM
 
 
@@ -229,7 +231,7 @@ Red Hat Advanced Cluster Management for Kubernetes add-ons can improve some area
 * **Config Policy Addon**: Audits k8s resources and remediates violations based on configuration policies.
 * **Governance Policy Framework Addon**: Distributes policies and collects policy evaluation results.
 * **IAM Policy Addon**: Monitors identity controls based on distributed policies.
-* **Observability Controller**: Manages Observability components.
+// * **Observability Controller**: Manages Observability components.
 * **Search Collector**: Collects cluster data to be indexed by search components on the hub cluster.
 * **Submariner Addon**: Submariner Addon for MultiCluster connectivity.
 * **VolSync**: https://github.com/backube/volsync[VolSync] (Asynchronous volume replication for Kubernetes CSI storage).
