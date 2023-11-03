@@ -36,6 +36,8 @@ This repository explores the typical installation scenarios and relevant conside
 // Create the Table of contents here
 toc::[]
 
+
+
 == Introduction
 
 Red Hat Advanced Cluster Management (ACM) allows organizations to rapidly deploy OpenShift to Cloud and On-Premise locations as well as manage the Kubernetes fleet of clusters.
@@ -137,8 +139,10 @@ You can import new clusters from the web console or by using the command line.
 
 === Importing Clusters: Web Console
 
+You can import existing clusters from the console for each of the available cloud providers. By default, the namespace is used for the cluster name and namespace, but you can change it.
 
-// TO DO
+
+NOTE: Access the https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.8/html-single/clusters/index#importing-managed-cluster-console[official documentation] on how to follow the steps on the Web Console.
 
 
 
@@ -168,7 +172,67 @@ Example values are:
 
 
 
+== ArgoCD ApplicationSets with ACM
 
+
+`ApplicationSet` is a sub-project of Argo CD that is supported by the GitOps Operator. ApplicationSet adds multicluster support for Argo CD applications. You can create an application set from the Red Hat Advanced Cluster Management console.
+
+NOTE: If you are going to configure this setup, I recommend you to read carefully the https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.8/html-single/applications/index#gitops-config[documentation] in sections 1.6.8, 1.6.9, and 1.6.10.
+
+
+First, you need to make sure that you have Openshift Gitops up and running. I recommend you to check out this other repository where I configure ArgoCD in the way that the following scripts will expect it:
+
+* Clone the https://github.com/alvarolop/ocp-gitops-playground[OCP GitOps Playground] repository.
+* Execute the steps detailed in the README.adoc.
+
+The following template configures a `Placement` rule that handles all the OpenShift clusters and adds them to the ArgoCD instance:
+
+[source, bash]
+----
+oc process -f openshift/30-gitops-integration.yaml | oc apply -f -
+----
+
+
+=== The Push and Pull model
+
+Using a *Push model*, The Argo CD server on the hub cluster deploys the application resources on the managed clusters. For the *Pull model*, the application resources are propagated by the Propagation controller to the managed clusters by using `manifestWork`.
+
+NOTE: Pull Model is Tech Preview in ACM 2.8, so we will just explore the Push alternative as of today.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+== Add-ons
+
+Red Hat Advanced Cluster Management for Kubernetes add-ons can improve some areas of performance and add functionality to enhance your applications. 
+
+
+* **Application Manager**: Synchronizes applications on the managed clusters from the hub.
+* **Certificate Policy Addon**: Monitors certificate expiration based on distributed policies.
+* **Config Policy Addon**: Audits k8s resources and remediates violations based on configuration policies.
+* **Governance Policy Framework Addon**: Distributes policies and collects policy evaluation results.
+* **IAM Policy Addon**: Monitors identity controls based on distributed policies.
+* **Observability Controller**: Manages Observability components.
+* **Search Collector**: Collects cluster data to be indexed by search components on the hub cluster.
+* **Submariner Addon**: Submariner Addon for MultiCluster connectivity.
+* **VolSync**: https://github.com/backube/volsync[VolSync] (Asynchronous volume replication for Kubernetes CSI storage).
 
 
 

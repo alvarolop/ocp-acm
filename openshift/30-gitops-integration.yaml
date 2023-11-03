@@ -1,0 +1,67 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: acm-operator
+  annotations:
+    description: Template for ACM on OCP.
+    tags: acm,management,operator
+    iconClass: icon-openshift
+    openshift.io/provider-display-name: Red Hat, Inc.
+    openshift.io/support-url: https://access.redhat.com
+objects:
+
+# The following resources are inspired in the official examples from the documentation:
+# https://github.com/stolostron/multicloud-integrations/tree/main/examples/openshift-gitops
+
+# - apiVersion: cluster.open-cluster-management.io/v1beta2
+#   kind: ManagedClusterSet
+#   metadata:
+#     name: all-openshift-clusters
+#   spec:
+#     clusterSelector:
+#       labelSelector: 
+#         matchLabels:
+#           vendor: OpenShift
+#       selectorType: LabelSelector
+
+- apiVersion: cluster.open-cluster-management.io/v1beta1
+  kind: Placement
+  metadata:
+    name: all-openshift-clusters
+    namespace: ${GITOPS_NAMESPACE}
+  spec:
+    tolerations:
+    - key: cluster.open-cluster-management.io/unreachable
+      operator: Exists
+    - key: cluster.open-cluster-management.io/unavailable
+      operator: Exists
+    predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchExpressions:
+          - key: vendor
+            operator: "In"
+            values:
+            - OpenShift
+
+- apiVersion: apps.open-cluster-management.io/v1beta1
+  kind: GitOpsCluster
+  metadata:
+    name: gitops-cluster-sample
+    namespace: dev
+  spec:
+    argoServer:
+      cluster: local-cluster
+      argoNamespace: ${GITOPS_NAMESPACE}
+    placementRef:
+      kind: Placement
+      apiVersion: cluster.open-cluster-management.io/v1beta1
+      name: all-openshift-clusters
+      namespace: ${GITOPS_NAMESPACE}
+
+
+parameters:
+- name: GITOPS_NAMESPACE
+  description: "The name were ArgoCD cluster is installed."
+  required: false
+  value: "gitops"
