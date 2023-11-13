@@ -1,0 +1,98 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+objects:
+
+  - apiVersion: project.openshift.io/v1
+    kind: Project
+    metadata:
+      name: ${QUAY_PROJECT}
+      annotations:
+        openshift.io/description: "Project to deploy Quay Enterprise components"
+        openshift.io/display-name: "Quay Enterprise"
+
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: config-bundle-secret
+      namespace: ${QUAY_PROJECT}
+    type: Opaque
+    stringData:
+    # Reference for variables:
+    # https://access.redhat.com/documentation/en-us/red_hat_quay/3.9/html-single/configure_red_hat_quay/index#config-fields-intro
+      config.yaml: |
+        DISTRIBUTED_STORAGE_CONFIG:
+          s3Storage:
+            - S3Storage
+            - host: s3.${AWS_DEFAULT_REGION}.amazonaws.com
+              s3_access_key: ${AWS_ACCESS_KEY_ID}
+              s3_secret_key: ${AWS_SECRET_ACCESS_KEY}
+              s3_bucket: ${AWS_S3_BUCKET}
+              storage_path: /datastorage/registry
+        DISTRIBUTED_STORAGE_DEFAULT_LOCATIONS: []
+        DISTRIBUTED_STORAGE_PREFERENCE:
+            - s3Storage
+        # Enable support for OCI artifacts. Like Helm
+        FEATURE_GENERAL_OCI_SUPPORT: true
+        # Whether users can be created (by non-superusers)
+        FEATURE_USER_CREATION: true
+        # To use the API to create the first user (it will be quayadmin)
+        FEATURE_USER_INITIALIZE: true
+        # Grants superusers the ability to read, write, and delete content 
+        # from other repositories in namespaces that 
+        # they do not own or have explicit permissions for.
+        FEATURE_SUPERUSERS_FULL_ACCESS: true
+        SUPER_USERS:
+          - quayadmin
+
+  - apiVersion: quay.redhat.com/v1
+    kind: QuayRegistry
+    metadata:
+      name: ${QUAY_DEPLOYMENT_NAME}
+      namespace: ${QUAY_PROJECT}
+    spec:
+      configBundleSecret: config-bundle-secret
+      components:
+        - kind: clair
+          managed: true
+          overrides:
+            replicas: 1
+        - kind: horizontalpodautoscaler
+          managed: false
+        - kind: mirror
+          managed: true
+        - kind: postgres
+          managed: true
+        - kind: redis
+          managed: true
+        - kind: objectstorage
+          managed: false
+        - kind: route
+          managed: true
+        - kind: monitoring
+          managed: true
+        - kind: tls
+          managed: true
+      
+
+parameters:
+  - name: QUAY_PROJECT
+    description: "The project where Quay will be deployed."
+    required: false
+    value: quay-enterprise
+  - name: QUAY_DEPLOYMENT_NAME
+    description: "The name of the Quay instance."
+    required: false
+    value: registry
+  - name: AWS_ACCESS_KEY_ID
+    description: "AWS access_key_id."
+    required: true
+  - name: AWS_SECRET_ACCESS_KEY
+    description: "AWS access_key_secret."
+    required: true
+  - name: AWS_DEFAULT_REGION
+    description: "AWS region."
+    required: true
+  - name: AWS_S3_BUCKET
+    description: "S3 Bucket name (You can modify it in the script)."
+    required: false
+    value: acm-thanos-s3-bucket
