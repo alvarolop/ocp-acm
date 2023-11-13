@@ -86,6 +86,8 @@ oc process -f openshift/11-multi-cluster-observability.yaml \
     -p ACMO_NAMESPACE=$ACMO_NAMESPACE \
     -p DOCKER_CONFIG_JSON="$DOCKER_CONFIG_JSON" | oc apply -f -
 
+sleep 20
+
 GRAFANA_ROUTE=$(oc get routes grafana -n $ACMO_NAMESPACE --template='https://{{ .spec.host }}')
 
 echo -e "\nURLS:"

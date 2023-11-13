@@ -129,6 +129,11 @@ image::acm-observability-grafana.png[ACM Observability Grafana]
 
 
 
+
+
+
+
+
 == Cluster lifecycle with multicluster engine operator
 
 
@@ -170,6 +175,52 @@ Example values are:
 
 
 
+== Policies (Governance)
+
+The policy framework provides governance capabilities to ACM-managed Kubernetes clusters. Policies provide visibility and drive remediation for various security and configuration aspects to help IT administrators meet their requirements.
+
+Every policy requires the `policy-template`, `PlacmentRule`, and `PlacementBinding` templates. A policy can have one or more *policy-templates*, but a minimum of one policy-template is needed. The *PlacementRule* template specifies one cluster or set of groups for deploying the policy. As the name implies, the *PlacementBinding* template binds the policy to the PlacementRules.
+
+
+
+
+
+TIP: For a nice community catalog of Policies, you can check the https://github.com/open-cluster-management-io/policy-collection/blob/main/community/README.md[upstream documentation].
+
+
+
+=== Policy Controllers
+
+The policy controllers monitor whether your cluster is compliant with a policy. The policy controller also reports the policy status, which you can see on the RHACM governance dashboard.
+
+* *Kubernetes Configuration Policy Controller*: This policy controller manages, configures, and monitors Kubernetes resources.
+* *Certificate Policy Controller*: The certificate policy detects when a certificate is about to expire in the default namespace.
+* *IAM Policy Controller*: This policy controller sends notifications about IAM policy violations. The IAM policy checks for the number of users with cluster role bindings for the cluster-admin role.
+* *Integrating Third-party Policy Controllers*: RHACM governance supports third-party policy controllers such as gatekeeper policy controllers.
+* *Custom Policy Controller*: You can create a custom policy controller with the help of a governance-policy-framework repository.
+
+
+
+
+=== Integration I: The OpenShift Compliance Operator
+
+The compliance operator is an OpenShift operator that employs OpenSCAP and enables an administrator to run compliance scans and provide remediation for the issues found. 
+
+
+=== Integration II: OPA Gatekeeper
+
+ACM provides a built-in policy to deploy the OPA gatekeeper operator. This way, ACM can use OPA gatekeeper as a policy controller and you can use constraints and constraint templates to define admission and audit templates for multiple clusters.
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -200,7 +251,6 @@ oc process -f openshift/30-gitops-integration.yaml | oc apply -f -
 Using a *Push model*, The Argo CD server on the hub cluster deploys the application resources on the managed clusters. For the *Pull model*, the application resources are propagated by the Propagation controller to the managed clusters by using `manifestWork`.
 
 NOTE: Pull Model is Tech Preview in ACM 2.8, so we will just explore the Push alternative as of today.
-
 
 
 

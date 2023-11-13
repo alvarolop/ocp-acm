@@ -52,11 +52,53 @@ objects:
     name: observability
     namespace: ${ACMO_NAMESPACE}
   spec:
-    observabilityAddonSpec: {}
+    # advanced:
+    #   alertmanager: {}
+    #   compact: {}
+    #   grafana: {}
+    #   observatoriumAPI: {}
+    #   query: {}
+    #   queryFrontend: {}
+    #   queryFrontendMemcached: {}
+    #   rbacQueryProxy: {}
+    #   receive: {}
+    #   retentionConfig: {}
+    #   rule: {}
+    #   store: {}
+    #   storeMemcached: {}
+    # enableDownsampling: boolean
+    # imagePullPolicy: ""
+    # imagePullSecret: ""
+    # nodeSelector:
+    #   node-role.kubernetes.io/infra: ""
+    observabilityAddonSpec:
+      enableMetrics: true
+      interval: 30
+      # resources:
+      #   limits:
+      #   requests:
     storageConfig:
+      # alertmanagerStorageSize: ""
+      # compactStorageSize: ""
       metricObjectStorage:
         name: thanos-object-storage
         key: thanos.yaml
+      # receiveStorageSize: ""
+      # ruleStorageSize: ""
+      # storageClass: ""
+      # storeStorageSize: ""
+      # writeStorage:
+      #   key: ""
+      #   name: ""
+      #   tlsSecretMountPath: ""
+      #   tlsSecretName: ""
+    # tolerations:
+    #   - key: node-role.kubernetes.io/infra
+    #     value: reserved
+    #     effect: NoSchedule
+    #   - key: node-role.kubernetes.io/infra
+    #     value: reserved
+    #     effect: NoExecute
 
     
 parameters:
