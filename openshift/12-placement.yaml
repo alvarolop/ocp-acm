@@ -1,0 +1,104 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: acm-operator
+  annotations:
+    description: Template for ACM on OCP.
+    tags: acm,management,operator
+    iconClass: icon-openshift
+    openshift.io/provider-display-name: Red Hat, Inc.
+    openshift.io/support-url: https://access.redhat.com
+objects:
+
+- apiVersion: cluster.open-cluster-management.io/v1beta2
+  kind: ManagedClusterSet
+  metadata:
+    name: ${MANAGED_CLUSTERSET_NAME}
+
+- apiVersion: cluster.open-cluster-management.io/v1beta2
+  kind: ManagedClusterSetBinding
+  metadata:
+    name: global
+    namespace: ${ACM_NAMESPACE}
+  spec:
+    clusterSet: global
+
+- apiVersion: cluster.open-cluster-management.io/v1beta1
+  kind: Placement
+  metadata:
+    name: all-openshift-clusters
+    namespace: ${ACM_NAMESPACE}
+  spec:
+    clusterSets:
+      - global
+    tolerations:
+    - key: cluster.open-cluster-management.io/unreachable
+      operator: Exists
+    - key: cluster.open-cluster-management.io/unavailable
+      operator: Exists
+    predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchExpressions:
+          - key: vendor
+            operator: "In"
+            values:
+            - OpenShift
+
+- apiVersion: cluster.open-cluster-management.io/v1beta1
+  kind: Placement
+  metadata:
+    name: only-local-cluster
+    namespace: ${ACM_NAMESPACE}
+  spec:
+    clusterSets:
+      - global
+    tolerations:
+    - key: cluster.open-cluster-management.io/unreachable
+      operator: Exists
+    - key: cluster.open-cluster-management.io/unavailable
+      operator: Exists
+    predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchExpressions:
+          - key: name
+            operator: "In"
+            values:
+            - local-cluster
+
+- apiVersion: cluster.open-cluster-management.io/v1beta1
+  kind: Placement
+  metadata:
+    name: all-other-clusters
+    namespace: ${ACM_NAMESPACE}
+  spec:
+    clusterSets:
+      - global
+    tolerations:
+    - key: cluster.open-cluster-management.io/unreachable
+      operator: Exists
+    - key: cluster.open-cluster-management.io/unavailable
+      operator: Exists
+    predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchExpressions:
+          - key: vendor
+            operator: "In"
+            values:
+            - OpenShift
+          - key: name
+            operator: "NotIn"
+            values:
+            - local-cluster
+
+parameters:
+- name: ACM_NAMESPACE
+  description: "The project where ACM and its operator will be installed."
+  required: false
+  value: "open-cluster-management"
+- name: MANAGED_CLUSTERSET_NAME
+  description: "The name we want to give to the Managed Cluster Set that the cluster belongs to."
+  required: false
+  value: "clusterset-0"

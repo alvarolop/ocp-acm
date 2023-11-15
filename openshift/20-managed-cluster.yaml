@@ -21,11 +21,6 @@ objects:
       openshift.io/description: "This project contains ACM resources for Managed Cluster 01"
       openshift.io/display-name: "Managed Cluster 01"
 
-- apiVersion: cluster.open-cluster-management.io/v1beta2
-  kind: ManagedClusterSet
-  metadata:
-    name: ${MANAGED_CLUSTERSET_NAME}
-
 - apiVersion: cluster.open-cluster-management.io/v1
   kind: ManagedCluster
   metadata:

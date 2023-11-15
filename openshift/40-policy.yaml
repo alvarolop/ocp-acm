@@ -1,0 +1,68 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: acm-operator
+  annotations:
+    description: Template for ACM on OCP.
+    tags: acm,management,operator
+    iconClass: icon-openshift
+    openshift.io/provider-display-name: Red Hat, Inc.
+    openshift.io/support-url: https://access.redhat.com
+objects:
+
+- apiVersion: policy.open-cluster-management.io/v1
+  kind: Policy
+  metadata:
+    name: encrypt-etcd
+    namespace: ${ACM_NAMESPACE}
+    annotations:
+      policy.open-cluster-management.io/categories: SC System and Communications Protection
+      policy.open-cluster-management.io/standards: NIST SP 800-53
+      policy.open-cluster-management.io/controls: SC-28 Protection Of Information At Rest
+  spec:
+    disabled: false
+    policy-templates:
+      - objectDefinition:
+          apiVersion: policy.open-cluster-management.io/v1
+          kind: ConfigurationPolicy
+          metadata:
+            name: enable-etcd-encryption
+          spec:
+            remediationAction: enforce
+            severity: low
+            object-templates:
+              - complianceType: musthave
+                objectDefinition:
+                  apiVersion: config.openshift.io/v1
+                  kind: APIServer
+                  metadata:
+                    name: cluster
+                  spec:
+                    encryption:
+                      type: aescbc
+
+
+- apiVersion: policy.open-cluster-management.io/v1
+  kind: PlacementBinding
+  metadata:
+    name: encrypt-etcd-placement
+    namespace: ${ACM_NAMESPACE}
+  placementRef:
+    name: ${PLACEMENT_NAME}
+    apiGroup: cluster.open-cluster-management.io
+    kind: Placement
+  subjects:
+    - name: encrypt-etcd
+      apiGroup: policy.open-cluster-management.io
+      kind: Policy
+
+
+parameters:
+- name: ACM_NAMESPACE
+  description: "The project where ACM and its operator will be installed."
+  required: false
+  value: "open-cluster-management"
+- name: PLACEMENT_NAME
+  description: "The placement that will be linked to the Policy."
+  required: false
+  value: "all-other-clusters"

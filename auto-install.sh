@@ -4,6 +4,8 @@ set -e
 
 # Set your environment variables here
 ACM_NAMESPACE=open-cluster-management
+MANAGED_CLUSTERSET_NAME=clusterset-0
+PLACEMENT_NAME=all-other-clusters
 
 ENABLE_OBSERVABILITY=true
 ACMO_NAMESPACE=open-cluster-management-observability
@@ -17,6 +19,8 @@ ACMO_ACM_S3_BUCKET=acm-thanos-s3-bucket
 echo -e "\n=============="
 echo -e "ENVIRONMENT VARIABLES:"
 echo -e " * ACM_NAMESPACE: $ACM_NAMESPACE"
+echo -e " * MANAGED_CLUSTERSET_NAME: $MANAGED_CLUSTERSET_NAME"
+echo -e " * PLACEMENT_NAME: $PLACEMENT_NAME"
 echo -e " * ENABLE_OBSERVABILITY: $ENABLE_OBSERVABILITY"
 echo -e " * ACMO_NAMESPACE: $ACMO_NAMESPACE"
 echo -e " * ACMO_ACM_S3_BUCKET: $ACMO_ACM_S3_BUCKET"
@@ -58,9 +62,17 @@ echo -n "Waiting for ACM cluster to be running (Currently: $(oc get multicluster
 # oc wait --for=condition=running multiclusterhub multiclusterhub -n $ACM_NAMESPACE
 while [[ $(oc get multiclusterhub -n $ACM_NAMESPACE -o=jsonpath='{.items[0].status.phase}') != "Running" ]]; do echo -n "." && sleep 1; done; echo -n -e "  [OK]\n"
 
+# 2.1) Create basic placements
+echo -e "\n[2.1/3]Create basic placements"
+oc process -f openshift/12-placement.yaml \
+    -p ACM_NAMESPACE=$ACM_NAMESPACE \
+    -p MANAGED_CLUSTERSET_NAME=$MANAGED_CLUSTERSET_NAME | oc apply -f -
 
-
-
+# 2.2) Create basic placements
+echo -e "\n[2.2/3]Create basic placements"
+oc process -f openshift/40-policy.yaml \
+    -p ACM_NAMESPACE=$ACM_NAMESPACE \
+    -p PLACEMENT_NAME=$PLACEMENT_NAME | oc apply -f -
 
 # 0. Exit if we don't deploy observability
 if ! $ENABLE_OBSERVABILITY; then
