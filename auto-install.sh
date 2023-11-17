@@ -6,6 +6,7 @@ set -e
 ACM_NAMESPACE=open-cluster-management
 MANAGED_CLUSTERSET_NAME=clusterset-0
 PLACEMENT_NAME=all-other-clusters
+APP_NAMESPACE=mysql
 
 ENABLE_OBSERVABILITY=true
 ACMO_NAMESPACE=open-cluster-management-observability
@@ -40,7 +41,7 @@ else
 fi
 
 # 1) Deploy the ACM operator
-echo -e "\n[1/3]Deploying the ACM operator"
+echo -e "\n[1/6]Deploying the ACM operator"
 oc process -f openshift/00-operator.yaml \
     -p ACM_NAMESPACE=$ACM_NAMESPACE | oc apply -f -
 
@@ -54,7 +55,7 @@ while [[ $(oc get pods -l app=submariner-addon -n $ACM_NAMESPACE -o 'jsonpath={.
 
 
 # 2) Deploy the ACM cluster
-echo -e "\n[2/3]Deploying the ACM cluster"
+echo -e "\n[2/6]Deploying the ACM cluster"
 oc process -f openshift/10-multi-cluster-hub.yaml \
     -p ACM_NAMESPACE=$ACM_NAMESPACE | oc apply -f -
 
@@ -62,28 +63,35 @@ echo -n "Waiting for ACM cluster to be running (Currently: $(oc get multicluster
 # oc wait --for=condition=running multiclusterhub multiclusterhub -n $ACM_NAMESPACE
 while [[ $(oc get multiclusterhub -n $ACM_NAMESPACE -o=jsonpath='{.items[0].status.phase}') != "Running" ]]; do echo -n "." && sleep 1; done; echo -n -e "  [OK]\n"
 
-# 2.1) Create basic placements
-echo -e "\n[2.1/3]Create basic placements"
+# 3) Create basic placements
+echo -e "\n[3/6]Create basic placements"
 oc process -f openshift/12-placement.yaml \
     -p ACM_NAMESPACE=$ACM_NAMESPACE \
     -p MANAGED_CLUSTERSET_NAME=$MANAGED_CLUSTERSET_NAME | oc apply -f -
 
-# 2.2) Create basic placements
-echo -e "\n[2.2/3]Create basic placements"
+# 4) Create example Policy
+echo -e "\n[4/6]Create example Policy"
 oc process -f openshift/40-policy.yaml \
     -p ACM_NAMESPACE=$ACM_NAMESPACE \
     -p PLACEMENT_NAME=$PLACEMENT_NAME | oc apply -f -
 
+# 5) Create example Application
+echo -e "\n[5/6]Create example Application"
+oc process -f openshift/50-application.yaml \
+    -p ACM_NAMESPACE=$ACM_NAMESPACE \
+    -p PLACEMENT_NAME=$PLACEMENT_NAME \
+    -p APP_NAMESPACE=$APP_NAMESPACE | oc apply -f -
+
 # 0. Exit if we don't deploy observability
 if ! $ENABLE_OBSERVABILITY; then
-    echo -e "\n[3/3]Skip the ACM Observability stack"
+    echo -e "\n[6/6]Skip the ACM Observability stack"
     exit 0
 fi
 
 
 
 # 3) Deploy the ACM Observability component
-echo -e "\n[3/3]Deploying the ACM Observability stack"
+echo -e "\n[6/6]Deploying the ACM Observability stack"
 
 # 1. Copy the pull secret of the cluster to the observability namespace
 DOCKER_CONFIG_JSON=$(oc extract secret/pull-secret -n openshift-config --to=-)

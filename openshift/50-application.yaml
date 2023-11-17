@@ -1,0 +1,107 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: acm-operator
+  annotations:
+    description: Template for ACM on OCP.
+    tags: acm,management,operator
+    iconClass: icon-openshift
+    openshift.io/provider-display-name: Red Hat, Inc.
+    openshift.io/support-url: https://access.redhat.com
+objects:
+
+- apiVersion: v1                    
+  kind: Namespace
+  metadata:
+    name: ${APP_NAMESPACE}
+
+- apiVersion: app.k8s.io/v1beta1
+  kind: Application
+  metadata:
+    name: mysql
+    namespace: ${APP_NAMESPACE}
+    annotations:
+      apps.open-cluster-management.io/subscriptions: ${APP_NAMESPACE}/mysql-subscription-development
+  spec:
+    componentKinds:
+    - group: apps.open-cluster-management.io
+      kind: Subscription
+    descriptor: {}
+    selector:
+      matchExpressions:
+        - key: app
+          operator: In
+          values:
+            - mysql
+
+- apiVersion: v1                    
+  kind: Namespace
+  metadata:
+    name: ggithubcom-alvarolop-ocp-acm-ns
+
+- apiVersion: apps.open-cluster-management.io/v1
+  kind: Channel
+  metadata:
+    name: ggithubcom-alvarolop-ocp-acm
+    namespace: ggithubcom-alvarolop-ocp-acm-ns
+  spec:
+    pathname: 'https://github.com/alvarolop/ocp-acm'
+    type: Git
+
+- apiVersion: apps.open-cluster-management.io/v1
+  kind: Subscription
+  metadata:
+    name: mysql-subscription-development
+    namespace: ${APP_NAMESPACE}
+    labels:
+      app: mysql
+    annotations:
+      apps.open-cluster-management.io/github-branch: main
+      apps.open-cluster-management.io/github-path: kustomize-app/overlays/emea
+      apps.open-cluster-management.io/reconcile-option: merge
+  spec:
+    channel: default/ggithubcom-alvarolop-ocp-acm
+    placement:
+      placementRef:
+        kind: Placement
+        name: mysql-placement-1
+
+- apiVersion: cluster.open-cluster-management.io/v1beta1
+  kind: Placement
+  metadata:
+    labels:
+      app: mysql
+    name: mysql-placement-1
+    namespace: ${APP_NAMESPACE}
+  spec:
+    predicates:
+      - requiredClusterSelector:
+          labelSelector:
+            matchExpressions:
+              - key: 'cluster.open-cluster-management.io/clusterset'
+                operator: In
+                values: ['clusterset-0']
+    clusterSets:
+      - global
+
+- apiVersion: cluster.open-cluster-management.io/v1beta2
+  kind: ManagedClusterSetBinding
+  metadata:
+    name: global
+    namespace: ${APP_NAMESPACE}
+  spec:
+    clusterSet: global
+
+parameters:
+- name: ACM_NAMESPACE
+  description: "The project where ACM and its operator will be installed."
+  required: false
+  value: "open-cluster-management"
+- name: PLACEMENT_NAME
+  description: "The placement that will be linked to the Policy."
+  required: false
+  value: "all-other-clusters"
+- name: APP_NAMESPACE
+  description: "The project where ACM and its operator will be installed."
+  required: false
+  value: "mysql"
